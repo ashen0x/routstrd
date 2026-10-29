@@ -1246,8 +1246,7 @@ export function createDaemonRequestHandler(deps: {
           },
         });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -1388,13 +1387,10 @@ export function createDaemonRequestHandler(deps: {
         const hasIndices = Array.isArray(indices);
         const hasLabels = Array.isArray(labels) && labels.length > 0;
         if (!hasIndices && !hasLabels) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Missing or invalid target field (expected 'indices': number[] and/or 'labels': string[]).",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Missing or invalid target field (expected 'indices': number[] and/or 'labels': string[]).",
+          });
           return;
         }
 
@@ -1482,26 +1478,22 @@ export function createDaemonRequestHandler(deps: {
           parts.push(`${remainingEnabled.length} targeted provider(s) remain enabled under the effective policy.`);
         }
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              message: parts.join(" "),
-              disabled,
-              remainingEnabled,
-              matchedUrls: labelMatch?.matchedUrls ?? [],
-              enabledLabels:
-                deps.modelManager.getUserEnabledReviewLabels?.() ?? [],
-              enabledReviewLabels:
-                deps.modelManager.getEnabledReviewLabels?.() ?? [],
-              ...(matchedLabels.length > 0 ? { matchedLabels } : {}),
-              ...(unmatchedLabels.length > 0 ? { unmatchedLabels } : {}),
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            message: parts.join(" "),
+            disabled,
+            remainingEnabled,
+            matchedUrls: labelMatch?.matchedUrls ?? [],
+            enabledLabels:
+              deps.modelManager.getUserEnabledReviewLabels?.() ?? [],
+            enabledReviewLabels:
+              deps.modelManager.getEnabledReviewLabels?.() ?? [],
+            ...(matchedLabels.length > 0 ? { matchedLabels } : {}),
+            ...(unmatchedLabels.length > 0 ? { unmatchedLabels } : {}),
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -1520,13 +1512,10 @@ export function createDaemonRequestHandler(deps: {
         const hasIndices = Array.isArray(indices);
         const hasLabels = Array.isArray(labels) && labels.length > 0;
         if (!hasIndices && !hasLabels) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Missing or invalid target field (expected 'indices': number[] and/or 'labels': string[]).",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Missing or invalid target field (expected 'indices': number[] and/or 'labels': string[]).",
+          });
           return;
         }
 
@@ -1621,26 +1610,22 @@ export function createDaemonRequestHandler(deps: {
           parts.push(`${remainingDisabled.length} targeted provider(s) remain disabled under the effective policy.`);
         }
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              message: parts.join(" "),
-              enabled,
-              remainingDisabled,
-              matchedUrls: labelMatch?.matchedUrls ?? [],
-              enabledLabels:
-                deps.modelManager.getUserEnabledReviewLabels?.() ?? [],
-              enabledReviewLabels:
-                deps.modelManager.getEnabledReviewLabels?.() ?? [],
-              ...(matchedLabels.length > 0 ? { matchedLabels } : {}),
-              ...(unmatchedLabels.length > 0 ? { unmatchedLabels } : {}),
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            message: parts.join(" "),
+            enabled,
+            remainingDisabled,
+            matchedUrls: labelMatch?.matchedUrls ?? [],
+            enabledLabels:
+              deps.modelManager.getUserEnabledReviewLabels?.() ?? [],
+            enabledReviewLabels:
+              deps.modelManager.getEnabledReviewLabels?.() ?? [],
+            ...(matchedLabels.length > 0 ? { matchedLabels } : {}),
+            ...(unmatchedLabels.length > 0 ? { unmatchedLabels } : {}),
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -1652,12 +1637,9 @@ export function createDaemonRequestHandler(deps: {
         const indices = body.indices as number[] | undefined;
 
         if (!Array.isArray(indices)) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: "Missing or invalid 'indices' field (expected number[]).",
-            }),
-          );
+          sendJson(res, 400, {
+            error: "Missing or invalid 'indices' field (expected number[]).",
+          });
           return;
         }
 
@@ -1680,13 +1662,10 @@ export function createDaemonRequestHandler(deps: {
         }
 
         if (validIndices.length === 0) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: `No valid indices provided (valid range: 0-${Math.max(baseUrlsList.length - 1, 0)}).`,
-              skipped: skippedIndices,
-            }),
-          );
+          sendJson(res, 400, {
+            error: `No valid indices provided (valid range: 0-${Math.max(baseUrlsList.length - 1, 0)}).`,
+            skipped: skippedIndices,
+          });
           return;
         }
 
@@ -1746,19 +1725,15 @@ export function createDaemonRequestHandler(deps: {
             reviewDisabled.has(normalizeProviderBaseUrl(baseUrl)),
         }));
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              message: `Reverted ${synced.length} provider(s) to Nostr review-based state`,
-              providers: resulting,
-              ...(skippedIndices.length > 0 ? { skipped: skippedIndices } : {}),
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            message: `Reverted ${synced.length} provider(s) to Nostr review-based state`,
+            providers: resulting,
+            ...(skippedIndices.length > 0 ? { skipped: skippedIndices } : {}),
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -1775,18 +1750,14 @@ export function createDaemonRequestHandler(deps: {
           ownerNpub: c.ownerNpub,
         }));
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              clients,
-              totalCount: clients.length,
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            clients,
+            totalCount: clients.length,
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -1800,24 +1771,18 @@ export function createDaemonRequestHandler(deps: {
         const ownerNpub = body.ownerNpub as string | undefined;
 
         if (!name || typeof name !== "string" || name.trim() === "") {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Missing required 'name' field (must be a non-empty string).",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Missing required 'name' field (must be a non-empty string).",
+          });
           return;
         }
 
         if (!explicitId || typeof explicitId !== "string" || explicitId.trim() === "") {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Missing required 'id' field (must be a non-empty string).",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Missing required 'id' field (must be a non-empty string).",
+          });
           return;
         }
 
@@ -1830,13 +1795,10 @@ export function createDaemonRequestHandler(deps: {
         const clientId = sanitizeId(explicitId);
 
         if (!clientId) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Invalid client id. Must contain alphanumeric characters.",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Invalid client id. Must contain alphanumeric characters.",
+          });
           return;
         }
 
@@ -1846,12 +1808,9 @@ export function createDaemonRequestHandler(deps: {
         );
 
         if (existingClient) {
-          res.writeHead(409, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: `Client with id '${clientId}' already exists.`,
-            }),
-          );
+          sendJson(res, 409, {
+            error: `Client with id '${clientId}' already exists.`,
+          });
           return;
         }
 
@@ -1873,21 +1832,18 @@ export function createDaemonRequestHandler(deps: {
 
         logger.log(`Added client '${name}' with id '${clientId}'`);
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              message: `Client '${name}' added successfully`,
-              client: {
-                id: clientId,
-                name: name.trim(),
-                apiKey,
-                createdAt: newClient.createdAt,
-                ownerNpub: newClient.ownerNpub,
-              },
+        sendJson(res, 200, {
+          output: {
+            message: `Client '${name}' added successfully`,
+            client: {
+              id: clientId,
+              name: name.trim(),
+              apiKey,
+              createdAt: newClient.createdAt,
+              ownerNpub: newClient.ownerNpub,
             },
-          }),
-        );
+          },
+        });
       } catch (error) {
         respondWithError(res, error);
       }
@@ -1901,13 +1857,10 @@ export function createDaemonRequestHandler(deps: {
         const id = body.id as string | undefined;
 
         if (!id || typeof id !== "string" || id.trim() === "") {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error:
-                "Missing required 'id' field (must be a non-empty string).",
-            }),
-          );
+          sendJson(res, 400, {
+            error:
+              "Missing required 'id' field (must be a non-empty string).",
+          });
           return;
         }
 
@@ -1917,12 +1870,9 @@ export function createDaemonRequestHandler(deps: {
         );
 
         if (index === -1) {
-          res.writeHead(404, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              error: `Client with id '${id}' not found.`,
-            }),
-          );
+          sendJson(res, 404, {
+            error: `Client with id '${id}' not found.`,
+          });
           return;
         }
 
@@ -1937,15 +1887,12 @@ export function createDaemonRequestHandler(deps: {
           `Deleted client '${removedClient.name}' with id '${id}'`,
         );
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              message: `Client '${removedClient.name}' deleted successfully`,
-              id,
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            message: `Client '${removedClient.name}' deleted successfully`,
+            id,
+          },
+        });
       } catch (error) {
         respondWithError(res, error);
       }
@@ -1997,19 +1944,15 @@ export function createDaemonRequestHandler(deps: {
         // (filter out stale entries from previously disabled providers that are no longer present)
         const activeDisabledCount = providers.filter((p) => p.disabled).length;
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              providers,
-              disabledCount: activeDisabledCount,
-              totalCount: baseUrlsList.length,
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            providers,
+            disabledCount: activeDisabledCount,
+            totalCount: baseUrlsList.length,
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -2147,21 +2090,17 @@ export function createDaemonRequestHandler(deps: {
           .sort((a: any, b: any) => b.created_at - a.created_at)
           .map(mapReview);
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              providers,
-              unmatchedReviews,
-              enabledLabels,
-              totalCount: baseUrlsList.length,
-              reviewEventCount: reviewEvents.length,
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            providers,
+            unmatchedReviews,
+            enabledLabels,
+            totalCount: baseUrlsList.length,
+            reviewEventCount: reviewEvents.length,
+          },
+        });
       } catch (error) {
-        res.writeHead(500, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: String(error) }));
+        sendJson(res, 500, { error: String(error) });
       }
       return;
     }
@@ -2182,8 +2121,7 @@ export function createDaemonRequestHandler(deps: {
               limit: parseLimit(url.searchParams.get("limit")),
               ...(clientFilter ? { clients: clientFilter } : {}),
             });
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ output }));
+        sendJson(res, 200, { output });
       } catch (error) {
         sendJson(res, 500, { error: toErrorMessage(error) });
       }
@@ -2249,19 +2187,16 @@ export function createDaemonRequestHandler(deps: {
           0,
         );
 
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(
-          JSON.stringify({
-            output: {
-              entries,
-              totalEntries,
-              totalSatsCost,
-              recentSatsCost,
-              limit,
-              timestamp,
-            },
-          }),
-        );
+        sendJson(res, 200, {
+          output: {
+            entries,
+            totalEntries,
+            totalSatsCost,
+            recentSatsCost,
+            limit,
+            timestamp,
+          },
+        });
       } catch (error) {
         sendJson(res, 500, { error: toErrorMessage(error) });
       }
